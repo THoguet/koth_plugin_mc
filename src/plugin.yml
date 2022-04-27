@@ -1,0 +1,17 @@
+name: koth
+main: fr.nessar.koth
+description: KOTH plugin made with hearth.
+version: 1
+api-version: 1.8.8
+depend:
+  - WorldEdit
+commands:
+  koth:
+    description: koth base command
+    permission: koth.base
+    usage: /<command> [new|delete|list] <name>
+
+permissions:
+  koth.base:
+    description: allow base koth command
+    default: op

@@ -1,0 +1,13 @@
+{
+    "java.project.sourcePaths": [
+        "src"
+    ],
+    "java.project.outputPath": "bin",
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar"
+    ],
+    "java.project.exportJar.targetPath": "/home/nessar/plugin_mc/servermc/plugins",
+    "yaml.schemas": {
+        "https://json.schemastore.org/bukkit-plugin.json": "file:///home/nessar/plugin_mc/koth/src/plugin.yml"
+    }
+}
