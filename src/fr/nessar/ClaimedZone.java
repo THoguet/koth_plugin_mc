@@ -8,71 +8,70 @@ import org.bukkit.entity.Player;
 
 public class ClaimedZone {
 
-	private List<String> playerList;
+	private transient List<Player> playerList;
 
-	private double xStart, zStart, xEnd, zEnd;
-
-	private boolean active;
+	private transient boolean active;
 
 	private String name, world;
 
-	public ClaimedZone(Location minimal, Location maximal, String name) {
-		try {
-			if (minimal.getX() > maximal.getX()) {
-				this.xStart = maximal.getX();
-				this.xEnd = minimal.getX();
-			} else {
-				this.xStart = minimal.getX();
-				this.xEnd = maximal.getX();
-			}
-			if (minimal.getZ() > maximal.getZ()) {
-				this.zStart = maximal.getZ();
-				this.zEnd = minimal.getZ();
-			} else {
-				this.zStart = minimal.getZ();
-				this.zEnd = maximal.getZ();
-			}
-			this.world = minimal.getWorld().getName();
-			this.name = name;
-			this.active = false;
-			this.playerList = new ArrayList<>();
-		} catch (Exception e) {
-			System.out.println("null pointer new ClaimedZone");
-		}
+	private double xStart, zStart, xEnd, zEnd;
+
+	public ClaimedZone(Location minimal, Location maximal, String name) throws Exception {
+		if (!minimal.getWorld().equals(maximal.getWorld()))
+			throw new Exception("The two locations not on the same world");
+		this.xStart = minimal.getX();
+		this.zStart = minimal.getZ();
+		this.xEnd = maximal.getX();
+		this.zEnd = maximal.getZ();
+		this.world = minimal.getWorld().getName();
+		this.name = name;
+		this.active = false;
+		this.playerList = new ArrayList<>();
 	}
 
-	public List<String> getPlayerList() {
+	public ClaimedZone() {
+		this.active = false;
+		this.playerList = new ArrayList<>();
+	}
+
+	public List<Player> getPlayerList() {
 		return playerList;
 	}
 
 	public boolean isPlayerInZone(Player p) {
 		for (int i = 0; i < playerList.size(); i++) {
-			if (playerList.get(i).equals(p.getName())) {
+			if (playerList.get(i).getDisplayName().equals(p.getDisplayName())) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public String getFirstPlayer() {
+	public Player getFirstPlayer() {
 		if (playerList.size() == 0) {
 			return null;
 		}
 		return playerList.get(0);
 	}
 
-	public boolean addPlayer(String pName) {
-		if (pName != null) {
-			playerList.add(pName);
+	public String getFirstPlayerDisplayName() {
+		if (playerList.size() == 0)
+			return null;
+		return playerList.get(0).getDisplayName();
+	}
+
+	public boolean addPlayer(Player p) {
+		if (p != null) {
+			playerList.add(p);
 			return true;
 		}
 		return false;
 	}
 
-	public boolean deletePlayer(String pName) {
-		if (pName != null) {
+	public boolean deletePlayer(Player p) {
+		if (p != null) {
 			for (int i = 0; i < playerList.size(); i++) {
-				if (playerList.get(i).equals(pName)) {
+				if (playerList.get(i).getDisplayName().equals(p.getDisplayName())) {
 					playerList.remove(i);
 					return true;
 				}
@@ -105,8 +104,12 @@ public class ClaimedZone {
 		return zEnd;
 	}
 
-	public void setActive(boolean x) {
-		this.active = x;
+	public void start() {
+		this.active = true;
+	}
+
+	public void stop() {
+		this.active = false;
 	}
 
 	public boolean isInZone(Location loc) {
@@ -118,5 +121,4 @@ public class ClaimedZone {
 	public boolean isActive() {
 		return this.active;
 	}
-
 }

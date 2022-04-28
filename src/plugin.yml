@@ -1,15 +1,17 @@
-name: koth
-main: fr.nessar.koth
+name: Koth
+main: fr.nessar.Koth
 description: KOTH plugin made with hearth.
 version: 1
 api-version: 1.8.8
 depend:
   - WorldEdit
+  - Factions
+  - MassiveCore
 commands:
   koth:
     description: koth base command
     permission: koth.base
-    usage: /<command> [new|delete|list] <name>
+    usage: "Usage: /<command> [new|delete|list|start|stop|setchest|save|reloadconfig] <name> <time>"
 
 permissions:
   koth.base:
