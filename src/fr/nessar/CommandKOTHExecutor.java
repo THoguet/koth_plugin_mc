@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import com.massivecraft.factions.chat.ChatActive;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.bukkit.selections.Selection;
 
@@ -37,7 +36,7 @@ public class CommandKOTHExecutor implements CommandExecutor {
 			return true;
 		}
 		Player p = (Player) sender;
-		if (commandLabel.equalsIgnoreCase("koth")) {
+		if (commandLabel.equalsIgnoreCase("koth") && args.length >= 1) {
 			if (args[0].equalsIgnoreCase("new") && args.length == 2) {
 				sel = getWorldEdit().getSelection(p);
 				if (sel == null || sel.getMinimumPoint() == null || sel.getMaximumPoint() == null) {
@@ -91,6 +90,7 @@ public class CommandKOTHExecutor implements CommandExecutor {
 				}
 				return true;
 			} else if (args[0].equalsIgnoreCase("start") && args.length == 3) {
+				plugin.isChestCorrect();
 				if (plugin.getRewardChest() == null) {
 					p.sendMessage(
 							Koth.getPREFIX() + ChatColor.RED + "Vous devez d'abord enrgistrer la postion du coffre !");

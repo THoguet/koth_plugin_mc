@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -74,9 +76,16 @@ public class Koth extends JavaPlugin implements Listener {
 		List<Integer> locChest = this.getConfig().getIntegerList("chestlocation");
 		if (locChest.size() != 3)
 			this.RewardChest = null;
-		else
+		else {
+			if (Bukkit.getWorld("world").getBlockAt(locChest.get(0), locChest.get(1),
+					locChest.get(2)).getType() != Material.CHEST) {
+				this.getConfig().set("chestlocation", "");
+				this.RewardChest = null;
+				return;
+			}
 			this.RewardChest = (Chest) Bukkit.getWorld("world").getBlockAt(locChest.get(0), locChest.get(1),
 					locChest.get(2)).getState();
+		}
 	}
 
 	public Chest getRewardChest() {
@@ -126,6 +135,20 @@ public class Koth extends JavaPlugin implements Listener {
 		} else {
 			this.isActiveZoneEmpty = true;
 		}
+	}
+
+	public boolean isChestCorrect() {
+		if (this.RewardChest == null) {
+			return false;
+		}
+		Location locChest = this.RewardChest.getLocation();
+		Block b = Bukkit.getWorld(locChest.getWorld().getName()).getBlockAt(locChest);
+		if (b.getType() != Material.CHEST) {
+			this.RewardChest = null;
+			this.getConfig().set("chestlocation", "");
+			return false;
+		}
+		return true;
 	}
 
 	public int getHourLeft() {
@@ -281,7 +304,7 @@ public class Koth extends JavaPlugin implements Listener {
 	}
 
 	public void playerLeftZone(ClaimedZone cZ, Player p) {
-		if (cZ.isActive()) {
+		if (cZ.isActive() && cZ.getFirstPlayerDisplayName().equalsIgnoreCase(p.getDisplayName())) {
 			Bukkit.broadcastMessage(Koth.PREFIX + "Le contrôleur du KOTH a quitté la zone, le Timer a été reset !");
 			this.resetTimer();
 		}
