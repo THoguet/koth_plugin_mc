@@ -60,7 +60,6 @@ public class CustomScoreboard {
 		if (fPlayer.getFaction().isWilderness())
 			return "";
 		return fPlayer.getFaction().getTag();
-
 	}
 
 	private void updateTimer() {

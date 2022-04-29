@@ -10,7 +10,7 @@ commands:
   koth:
     description: koth base command
     permission: koth.base
-    usage: "Usage: /<command> [new|delete|list|start|stop|setchest|save|reloadconfig] <name> <time>"
+    usage: "Usage: /<command> [new | delete | list | start | stop | setchest | save | reloadconfig] <name> <time>"
 
 permissions:
   koth.base:

@@ -148,6 +148,7 @@ public class Koth extends JavaPlugin implements Listener {
 			this.getConfig().set("chestlocation", "");
 			return false;
 		}
+		this.RewardChest = (Chest) Bukkit.getWorld(locChest.getWorld().getName()).getBlockAt(locChest).getState();
 		return true;
 	}
 
@@ -267,8 +268,9 @@ public class Koth extends JavaPlugin implements Listener {
 			throw new Exception("ERROR: Invalid config.yml, percentage (" + String.valueOf(percentageItem.size())
 					+ ") != item (" + String.valueOf(listItem.size()) + ")!");
 		}
-		int rand = (int) (Math.random() * 100 + 1);
+		int rand;
 		for (int i = 0; i < listItem.size(); i++) {
+			rand = (int) (Math.random() * 100 + 1);
 			if (percentageItem.get(i) > rand) {
 				ret.add(listItem.get(i));
 			}
