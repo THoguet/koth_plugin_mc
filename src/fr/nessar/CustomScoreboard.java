@@ -1,6 +1,7 @@
 package fr.nessar;
 
-import com.massivecraft.factions.entity.MPlayer;
+import com.massivecraft.factions.FPlayer;
+import com.massivecraft.factions.FPlayers;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -55,8 +56,11 @@ public class CustomScoreboard {
 	}
 
 	public String getFactionName(Player p) {
-		MPlayer Mp = MPlayer.get(p);
-		return Mp.getFactionName();
+		FPlayer fPlayer = FPlayers.getInstance().getByPlayer(p);
+		if (fPlayer.getFaction().isWilderness())
+			return "";
+		return fPlayer.getFaction().getTag();
+
 	}
 
 	private void updateTimer() {
