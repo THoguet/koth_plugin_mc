@@ -6,6 +6,8 @@ api-version: 1.8.8
 depend:
   - WorldEdit
   - Factions
+softdepend:
+  - PlaceholderAPI
 commands:
   koth:
     description: koth base command

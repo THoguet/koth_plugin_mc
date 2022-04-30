@@ -3,6 +3,9 @@ package fr.nessar;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.massivecraft.factions.FPlayer;
+import com.massivecraft.factions.FPlayers;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -28,6 +31,8 @@ public class Koth extends JavaPlugin implements Listener {
 
 	private dataManager dManager;
 
+	private boolean useScoreBoard = true;
+
 	private List<ClaimedZone> cZones;
 	private List<String> cZonesName;
 
@@ -49,6 +54,7 @@ public class Koth extends JavaPlugin implements Listener {
 		this.getConfig().options().copyDefaults();
 		this.saveDefaultConfig();
 		this.initChest();
+		this.useScoreBoard = this.getConfig().getBoolean("scoreboard");
 		this.timer = 0;
 		this.originalTimer = 0;
 		this.isActiveZoneEmpty = true;
@@ -60,6 +66,8 @@ public class Koth extends JavaPlugin implements Listener {
 					.sendMessage(Koth.PREFIX + ChatColor.RED + "ERROR CANNOT LOAD DATA, CREATING EMPTY ONE");
 			this.cZones = new ArrayList<>();
 		}
+		if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
+			new PlaceHolders(this).register();
 		if (this.cZones != null) {
 			for (int i = 0; i < this.cZones.size(); i++) {
 				Bukkit.getServer().getConsoleSender()
@@ -88,6 +96,45 @@ public class Koth extends JavaPlugin implements Listener {
 		}
 	}
 
+	public boolean useScoreBoard() {
+		return this.useScoreBoard;
+	}
+
+	public String getFactionName(Player p) {
+		FPlayer fPlayer = FPlayers.getInstance().getByPlayer(p);
+		if (fPlayer.getFaction().isWilderness())
+			return "";
+		return fPlayer.getFaction().getTag();
+	}
+
+	public String getFactionName(String pName) {
+		Player p = Bukkit.getServer().getPlayer(pName);
+		FPlayer fPlayer = FPlayers.getInstance().getByPlayer(p);
+		if (fPlayer.getFaction().isWilderness())
+			return "";
+		return fPlayer.getFaction().getTag();
+	}
+
+	public String getPlayerFactionName(String playerName) {
+		if (playerName == "Aucun") {
+			return "Aucune";
+		} else {
+			String ret = this.getFactionName(playerName);
+			if (ret == "") {
+				ret = "Aucune";
+			}
+			return ret;
+		}
+	}
+
+	public String getControler(ClaimedZone cZone) {
+		String ret = cZone.getFirstPlayerDisplayName();
+		if (ret == null) {
+			ret = "Aucun";
+		}
+		return ret;
+	}
+
 	public Chest getRewardChest() {
 		return this.RewardChest;
 	}
@@ -102,7 +149,6 @@ public class Koth extends JavaPlugin implements Listener {
 
 	public List<String> getKOTHName() {
 		this.updateKOTHname();
-		Bukkit.broadcastMessage(String.valueOf(this.cZonesName));
 		return this.cZonesName;
 	}
 
@@ -119,7 +165,7 @@ public class Koth extends JavaPlugin implements Listener {
 	}
 
 	public dataManager getdManager() {
-		return dManager;
+		return this.dManager;
 	}
 
 	public boolean isActiveZoneEmpty() {
@@ -156,12 +202,42 @@ public class Koth extends JavaPlugin implements Listener {
 		return this.timer / 36000;
 	}
 
+	public String duplicateString(String toDup, int times) {
+		String ret = "";
+		for (int i = 0; i < times; i++) {
+			ret = ret + toDup;
+		}
+		return ret;
+	}
+
+	public String getLeftString(int number, int times) {
+		if (number <= Math.pow(10, times - 1)) {
+			return duplicateString("0", times - String.valueOf(number).length()) + String.valueOf(number);
+		}
+		return String.valueOf(number);
+	}
+
+	public String getHourLeftString(int i) {
+		int h = this.getHourLeft();
+		return getLeftString(h, i);
+	}
+
 	public int getMinuteLeft() {
 		return this.timer % 36000 / 600;
 	}
 
+	public String getMinuteLeftString(int i) {
+		int m = this.getMinuteLeft();
+		return getLeftString(m, i);
+	}
+
 	public int getSecondLeft() {
 		return this.timer % 600 / 10;
+	}
+
+	public String getSecondLeftString(int i) {
+		int s = this.getSecondLeft();
+		return getLeftString(s, i);
 	}
 
 	public void newTask() {
@@ -182,8 +258,8 @@ public class Koth extends JavaPlugin implements Listener {
 			this.timerTask.cancel();
 			int activeKoth = getActiveKoth();
 			if (activeKoth != -1)
-				kothEnded(this.cZones.get(activeKoth).getFirstPlayer());
-			stopTimer();
+				this.kothEnded(this.cZones.get(activeKoth).getFirstPlayer());
+			this.stopTimer();
 			return true;
 		}
 		return false;
@@ -201,12 +277,14 @@ public class Koth extends JavaPlugin implements Listener {
 	}
 
 	public void startTimer() {
-		this.cScoreboard.setScoreboardAllPlayers();
+		if (this.useScoreBoard)
+			this.cScoreboard.setScoreboardAllPlayers();
 		this.timerTask = this.task.runTaskTimerAsynchronously(this, 0L, 2L);
 	}
 
 	public void stopTimer() {
-		this.cScoreboard.deleteScoreboard();
+		if (this.useScoreBoard)
+			this.cScoreboard.deleteScoreboard();
 		this.timerTask.cancel();
 		int activeKoth = getActiveKoth();
 		if (activeKoth != -1)
@@ -300,7 +378,7 @@ public class Koth extends JavaPlugin implements Listener {
 			if (cZone.isInZone(newLoc) && !cZone.isInZone(oldLoc)) {
 				cZone.addPlayer(p);
 			} else if (!cZone.isInZone(newLoc) && cZone.isInZone(oldLoc)) {
-				playerLeftZone(cZone, p);
+				this.playerLeftZone(cZone, p);
 			}
 		}
 	}
@@ -332,14 +410,14 @@ public class Koth extends JavaPlugin implements Listener {
 		Player p = e.getPlayer();
 		for (ClaimedZone cZone : this.cZones) {
 			if (cZone.isInZone(p.getLocation())) {
-				playerLeftZone(cZone, p);
+				this.playerLeftZone(cZone, p);
 			}
 		}
 	}
 
 	@EventHandler
 	public void onPlayerTeleport(PlayerTeleportEvent e) {
-		onPlayerMove(e);
+		this.onPlayerMove(e);
 	}
 
 	@Override

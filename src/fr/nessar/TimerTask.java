@@ -12,10 +12,7 @@ public class TimerTask extends BukkitRunnable {
 
 	@Override
 	public void run() {
-		if (!this.plugin.isActiveZoneEmpty())
-			this.plugin.decrementTimer();
-		this.plugin.getCustomScoreboard().updateScoreboard();
-		this.plugin.isTimerEnd();
+		new SyncScheduleTimerTask(this.plugin).run();
 	}
 
 }
