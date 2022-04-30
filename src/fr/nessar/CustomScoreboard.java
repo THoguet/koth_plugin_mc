@@ -72,12 +72,16 @@ public class CustomScoreboard {
 	}
 
 	private void updatePlayerScore() {
-		this.lastPlayer = this.plugin.getControler(this.cZone);
+		this.lastPlayer = this.plugin.getControlerDisplayName(this.cZone);
 		this.lastPlayer = ChatColor.GRAY + "Joueur: " + ChatColor.GOLD + this.lastPlayer;
 	}
 
 	private void updateFactionScore() {
-		this.lastFaction = this.plugin.getPlayerFactionName(this.plugin.getControler(this.cZone));
+		if (!plugin.usePapi()) {
+			this.lastFaction = "";
+			return;
+		}
+		this.lastFaction = this.plugin.getPlayerFactionName(this.plugin.getControlerName(this.cZone));
 		this.lastFaction = ChatColor.GRAY + "Faction: " + ChatColor.GOLD + this.lastFaction;
 	}
 

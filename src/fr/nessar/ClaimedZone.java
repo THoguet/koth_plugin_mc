@@ -54,6 +54,12 @@ public class ClaimedZone {
 		return playerList.get(0);
 	}
 
+	public String getFirstPlayerName() {
+		if (playerList.size() == 0)
+			return null;
+		return playerList.get(0).getName();
+	}
+
 	public String getFirstPlayerDisplayName() {
 		if (playerList.size() == 0)
 			return null;

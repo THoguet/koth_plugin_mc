@@ -3,9 +3,6 @@ package fr.nessar;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.massivecraft.factions.FPlayer;
-import com.massivecraft.factions.FPlayers;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -22,6 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.md_5.bungee.api.ChatColor;
 
 public class Koth extends JavaPlugin implements Listener {
@@ -43,6 +41,7 @@ public class Koth extends JavaPlugin implements Listener {
 	private int timer, originalTimer;
 	private boolean isActiveZoneEmpty;
 
+	private boolean papi;
 	private Chest RewardChest;
 
 	public static String getPREFIX() {
@@ -54,6 +53,7 @@ public class Koth extends JavaPlugin implements Listener {
 		this.getConfig().options().copyDefaults();
 		this.saveDefaultConfig();
 		this.initChest();
+		this.papi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
 		this.useScoreBoard = this.getConfig().getBoolean("scoreboard");
 		this.timer = 0;
 		this.originalTimer = 0;
@@ -96,23 +96,31 @@ public class Koth extends JavaPlugin implements Listener {
 		}
 	}
 
+	public boolean usePapi() {
+		return this.papi;
+	}
+
 	public boolean useScoreBoard() {
 		return this.useScoreBoard;
 	}
 
 	public String getFactionName(Player p) {
-		FPlayer fPlayer = FPlayers.getInstance().getByPlayer(p);
-		if (fPlayer.getFaction().isWilderness())
+		if (!this.papi)
 			return "";
-		return fPlayer.getFaction().getTag();
+		String ret = "%factionsuuid_faction_name%";
+		ret = PlaceholderAPI.setPlaceholders(p, ret);
+		if (ret.contains("no-faction"))
+			return "";
+		return ret;
 	}
 
 	public String getFactionName(String pName) {
-		Player p = Bukkit.getServer().getPlayer(pName);
-		FPlayer fPlayer = FPlayers.getInstance().getByPlayer(p);
-		if (fPlayer.getFaction().isWilderness())
+		if (!this.papi)
 			return "";
-		return fPlayer.getFaction().getTag();
+		Player p = Bukkit.getServer().getPlayer(pName);
+		if (p == null)
+			return "";
+		return getFactionName(p);
 	}
 
 	public String getPlayerFactionName(String playerName) {
@@ -127,7 +135,15 @@ public class Koth extends JavaPlugin implements Listener {
 		}
 	}
 
-	public String getControler(ClaimedZone cZone) {
+	public String getControlerName(ClaimedZone cZone) {
+		String ret = cZone.getFirstPlayerName();
+		if (ret == null) {
+			ret = "Aucun";
+		}
+		return ret;
+	}
+
+	public String getControlerDisplayName(ClaimedZone cZone) {
 		String ret = cZone.getFirstPlayerDisplayName();
 		if (ret == null) {
 			ret = "Aucun";

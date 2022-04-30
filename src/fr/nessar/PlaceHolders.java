@@ -1,8 +1,6 @@
 package fr.nessar;
 
 import org.bukkit.OfflinePlayer;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 
@@ -15,17 +13,17 @@ public class PlaceHolders extends PlaceholderExpansion {
 	}
 
 	@Override
-	public @NotNull String getAuthor() {
+	public String getAuthor() {
 		return "Nessar";
 	}
 
 	@Override
-	public @NotNull String getIdentifier() {
+	public String getIdentifier() {
 		return "KOTH";
 	}
 
 	@Override
-	public @NotNull String getVersion() {
+	public String getVersion() {
 		return "1.0.0";
 	}
 
@@ -37,7 +35,7 @@ public class PlaceHolders extends PlaceholderExpansion {
 	}
 
 	@Override
-	public @Nullable String onRequest(OfflinePlayer player, @NotNull String params) {
+	public String onRequest(OfflinePlayer player, String params) {
 		if (params.equalsIgnoreCase("active")) {
 			return plugin.getActiveKoth() != -1 ? "true" : "false";
 		}
@@ -60,13 +58,13 @@ public class PlaceHolders extends PlaceholderExpansion {
 			ClaimedZone cZone = this.getCzone();
 			if (cZone == null)
 				return "Aucune";
-			return plugin.getPlayerFactionName(plugin.getControler(cZone));
+			return plugin.getPlayerFactionName(plugin.getControlerName(cZone));
 		}
 		if (params.equalsIgnoreCase("controler_name")) {
 			ClaimedZone cZone = this.getCzone();
 			if (cZone == null)
 				return "Aucun";
-			return plugin.getControler(cZone);
+			return plugin.getControlerDisplayName(cZone);
 		}
 		return null;
 	}
