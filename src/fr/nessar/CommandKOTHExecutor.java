@@ -22,11 +22,17 @@ import net.md_5.bungee.api.ChatColor;
 
 public class CommandKOTHExecutor implements CommandExecutor {
 
+	private static final String PREFIX_PERMISSION = "koth.";
+
 	private Selection sel;
 	private Koth plugin;
 
 	public CommandKOTHExecutor(Koth plugin) {
 		this.plugin = plugin;
+	}
+
+	public String permissionErrMessage() {
+		return "You don't have the permission to do this command !";
 	}
 
 	@Override
@@ -37,39 +43,56 @@ public class CommandKOTHExecutor implements CommandExecutor {
 		}
 		Player p = (Player) sender;
 		if (commandLabel.equalsIgnoreCase("koth") && args.length >= 1) {
-			if (args[0].equalsIgnoreCase("new") && args.length == 2) {
-				sel = getWorldEdit().getSelection(p);
-				if (sel == null || sel.getMinimumPoint() == null || sel.getMaximumPoint() == null) {
-					sender.sendMessage(
-							Koth.getPREFIX() + ChatColor.RED
-									+ "Vous devez d'abord selectionner une zone avec WorldEdit !");
+			if (args[0].equalsIgnoreCase("new") || args[0].equalsIgnoreCase("add")) {
+				if (!p.hasPermission(PREFIX_PERMISSION + "new")) {
+					p.sendMessage(Koth.getPREFIX() + this.permissionErrMessage());
 					return true;
 				}
-				ClaimedZone newZone;
-				try {
-					newZone = new ClaimedZone(sel.getMinimumPoint(), sel.getMaximumPoint(), args[1]);
-				} catch (Exception e) {
-					p.sendMessage(Koth.getPREFIX() + ChatColor.RED + "ERROR");
-					p.sendMessage(e.getMessage());
-					return true;
-				}
-				p.sendMessage(Koth.getPREFIX() + ChatColor.BLUE + "Le KOTH " + ChatColor.BOLD + args[1] + ChatColor.BLUE
-						+ " à bien été créé.");
-				plugin.getCZones().add(newZone);
-				plugin.getdManager().saveZones(plugin.getCZones());
-				return true;
-			} else if (args[0].equalsIgnoreCase("delete") && args.length == 2) {
-				for (int i = 0; i < plugin.getCZones().size(); i++) {
-					if (plugin.getCZones().get(i).getName().equalsIgnoreCase(args[1])) {
-						plugin.getCZones().remove(i);
-						p.sendMessage(Koth.getPREFIX() + "Le KOTH " + args[1] + " a bien été supprimé.");
-						plugin.getdManager().saveZones(plugin.getCZones());
+				if (args.length == 2) {
+					sel = getWorldEdit().getSelection(p);
+					if (sel == null || sel.getMinimumPoint() == null || sel.getMaximumPoint() == null) {
+						sender.sendMessage(
+								Koth.getPREFIX() + ChatColor.RED
+										+ "Vous devez d'abord selectionner une zone avec WorldEdit !");
 						return true;
 					}
+					ClaimedZone newZone;
+					try {
+						newZone = new ClaimedZone(sel.getMinimumPoint(), sel.getMaximumPoint(), args[1]);
+					} catch (Exception e) {
+						p.sendMessage(Koth.getPREFIX() + ChatColor.RED + "ERROR");
+						p.sendMessage(e.getMessage());
+						return true;
+					}
+					p.sendMessage(
+							Koth.getPREFIX() + ChatColor.BLUE + "Le KOTH " + ChatColor.BOLD + args[1] + ChatColor.BLUE
+									+ " à bien été créé.");
+					plugin.getCZones().add(newZone);
+					plugin.getdManager().saveZones(plugin.getCZones());
+					return true;
 				}
-				p.sendMessage(Koth.getPREFIX() + ChatColor.RED + "Le KOTH " + args[1] + " introuvable");
-				return true;
+			} else if (args[0].equalsIgnoreCase("delete") || args[0].equalsIgnoreCase("remove")) {
+				if (!p.hasPermission(PREFIX_PERMISSION + "delete")) {
+					p.sendMessage(Koth.getPREFIX() + this.permissionErrMessage());
+					return true;
+				}
+				if (args.length == 2) {
+					for (int i = 0; i < plugin.getCZones().size(); i++) {
+						if (plugin.getCZones().get(i).getName().equalsIgnoreCase(args[1])) {
+							plugin.getCZones().remove(i);
+							p.sendMessage(Koth.getPREFIX() + "Le KOTH " + args[1] + " a bien été supprimé.");
+							plugin.getdManager().saveZones(plugin.getCZones());
+							return true;
+						}
+					}
+					p.sendMessage(Koth.getPREFIX() + ChatColor.RED + "Le KOTH " + args[1] + " introuvable");
+					return true;
+				}
 			} else if (args[0].equalsIgnoreCase("list")) {
+				if (!p.hasPermission(PREFIX_PERMISSION + "list")) {
+					p.sendMessage(Koth.getPREFIX() + this.permissionErrMessage());
+					return true;
+				}
 				if (plugin.getCZones().size() == 0) {
 					p.sendMessage(Koth.getPREFIX() + "Il n'existe pas encore de KOTH.");
 					return true;
@@ -89,44 +112,55 @@ public class CommandKOTHExecutor implements CommandExecutor {
 							+ String.valueOf(act.getZEnd()) + ", monde: " + act.getWorld() + actif);
 				}
 				return true;
-			} else if (args[0].equalsIgnoreCase("start") && args.length == 3) {
-				plugin.isChestCorrect();
-				if (plugin.getRewardChest() == null) {
-					p.sendMessage(
-							Koth.getPREFIX() + ChatColor.RED + "Vous devez d'abord enrgistrer la postion du coffre !");
+			} else if (args[0].equalsIgnoreCase("start")) {
+				if (!p.hasPermission(PREFIX_PERMISSION + "start")) {
+					p.sendMessage(Koth.getPREFIX() + this.permissionErrMessage());
 					return true;
 				}
-				int kothActive = plugin.getActiveKoth();
-				if (kothActive != -1) {
-					p.sendMessage(
-							Koth.getPREFIX() + ChatColor.RED + "Le KOTH " + ChatColor.BOLD
-									+ plugin.getKOTHName().get(kothActive) + " est deja en cours !");
-					return true;
-				}
-				int timer;
-				try {
-					timer = Integer.parseInt(args[2]) * 10;
-				} catch (NumberFormatException e) {
-					p.sendMessage(Koth.getPREFIX() + ChatColor.RED + "Temps incorrect !");
-					return true;
-				}
-				for (int i = 0; i < plugin.getCZones().size(); i++) {
-					if (plugin.getCZones().get(i).getName().equalsIgnoreCase(args[1])) {
-						plugin.setTimer(timer);
-						plugin.setCScorboard(new CustomScoreboard(plugin, plugin.getCZones().get(i)));
-						plugin.newTask();
-						plugin.startTimer();
-						plugin.getCZones().get(i).start();
-						Bukkit.broadcastMessage(
-								Koth.getPREFIX() + "Le KOTH " + ChatColor.BOLD + args[1] + ChatColor.RESET
-										+ " à commencé !");
+				if (args.length == 3) {
+					plugin.isChestCorrect();
+					if (plugin.getRewardChest() == null) {
+						p.sendMessage(
+								Koth.getPREFIX() + ChatColor.RED
+										+ "Vous devez d'abord enrgistrer la postion du coffre !");
 						return true;
 					}
+					int kothActive = plugin.getActiveKoth();
+					if (kothActive != -1) {
+						p.sendMessage(
+								Koth.getPREFIX() + ChatColor.RED + "Le KOTH " + ChatColor.BOLD
+										+ plugin.getKOTHName().get(kothActive) + " est deja en cours !");
+						return true;
+					}
+					int timer;
+					try {
+						timer = Integer.parseInt(args[2]) * 10;
+					} catch (NumberFormatException e) {
+						p.sendMessage(Koth.getPREFIX() + ChatColor.RED + "Temps incorrect !");
+						return true;
+					}
+					for (int i = 0; i < plugin.getCZones().size(); i++) {
+						if (plugin.getCZones().get(i).getName().equalsIgnoreCase(args[1])) {
+							plugin.setTimer(timer);
+							plugin.setCScorboard(new CustomScoreboard(plugin, plugin.getCZones().get(i)));
+							plugin.newTask();
+							plugin.startTimer();
+							plugin.getCZones().get(i).start();
+							Bukkit.broadcastMessage(
+									Koth.getPREFIX() + "Le KOTH " + ChatColor.BOLD + args[1] + ChatColor.RESET
+											+ " à commencé !");
+							return true;
+						}
+					}
+					p.sendMessage(Koth.getPREFIX() +
+							ChatColor.RED + "Le KOTH " + ChatColor.BOLD + args[1] + ChatColor.RED + " n'existe pas.");
+					return true;
 				}
-				p.sendMessage(Koth.getPREFIX() +
-						ChatColor.RED + "Le KOTH " + ChatColor.BOLD + args[1] + ChatColor.RED + " n'existe pas.");
-				return true;
 			} else if (args[0].equalsIgnoreCase("stop")) {
+				if (!p.hasPermission(PREFIX_PERMISSION + "stop")) {
+					p.sendMessage(Koth.getPREFIX() + this.permissionErrMessage());
+					return true;
+				}
 				for (int i = 0; i < plugin.getCZones().size(); i++) {
 					if (plugin.getCZones().get(i).isActive()) {
 
@@ -141,6 +175,10 @@ public class CommandKOTHExecutor implements CommandExecutor {
 				p.sendMessage(Koth.getPREFIX() + ChatColor.RED + "Aucun KOTH n'est actif !");
 				return true;
 			} else if (args[0].equalsIgnoreCase("setchest")) {
+				if (!p.hasPermission(PREFIX_PERMISSION + "setchest")) {
+					p.sendMessage(Koth.getPREFIX() + this.permissionErrMessage());
+					return true;
+				}
 				List<Block> lbloc = p.getLineOfSight((Set<org.bukkit.Material>) null, 50);
 				for (int i = 0; i < lbloc.size(); i++) {
 					if (lbloc.get(i).getType() == Material.CHEST) {
@@ -160,14 +198,22 @@ public class CommandKOTHExecutor implements CommandExecutor {
 						Koth.getPREFIX() + ChatColor.RED + "Aucun coffre n'a été trouvé dans ton champ de vision.");
 				return true;
 			} else if (args[0].equalsIgnoreCase("save")) {
+				if (!p.hasPermission(PREFIX_PERMISSION + "save")) {
+					p.sendMessage(Koth.getPREFIX() + this.permissionErrMessage());
+					return true;
+				}
 				plugin.saveInv(p);
 				p.sendMessage(
 						Koth.getPREFIX() + ChatColor.GREEN
 								+ "Votre inventaire a été sauvgardé dans le fichier config.yml");
 				return true;
-			} else if (args[0].equalsIgnoreCase("reloadconfig")) {
+			} else if (args[0].equalsIgnoreCase("reloaditem")) {
+				if (!p.hasPermission(PREFIX_PERMISSION + "reloaditem")) {
+					p.sendMessage(Koth.getPREFIX() + this.permissionErrMessage());
+					return true;
+				}
 				plugin.reloadConfig();
-				p.sendMessage(Koth.getPREFIX() + ChatColor.GREEN + "La config a bien été reload !");
+				p.sendMessage(Koth.getPREFIX() + ChatColor.GREEN + "Les Items ont bien été reload !");
 				return true;
 			}
 		}

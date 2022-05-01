@@ -10,7 +10,7 @@ softdepend:
 commands:
   koth:
     description: koth base command
-    permission: koth.base
+    permission: koth
     usage: "Usage: /<command> [new | delete | list | start | stop | setchest | save | reloadconfig] <name> <time>"
 
 permissions:

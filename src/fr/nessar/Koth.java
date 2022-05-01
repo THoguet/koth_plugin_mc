@@ -53,6 +53,11 @@ public class Koth extends JavaPlugin implements Listener {
 		this.getConfig().options().copyDefaults();
 		this.saveDefaultConfig();
 		this.initChest();
+		if (Bukkit.getPluginManager().getPlugin("WorldEdit") == null) {
+			Bukkit.getServer().getConsoleSender()
+					.sendMessage(PREFIX + ChatColor.RED + "This plugin need WorldEdit to work !");
+			Bukkit.getPluginManager().disablePlugin(this);
+		}
 		this.papi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
 		this.useScoreBoard = this.getConfig().getBoolean("scoreboard");
 		this.timer = 0;
