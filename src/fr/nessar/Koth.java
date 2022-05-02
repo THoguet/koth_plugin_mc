@@ -444,7 +444,7 @@ public class Koth extends JavaPlugin implements Listener {
 	@Override
 	public void onDisable() {
 		this.dManager.saveZones(this.cZones);
-		Bukkit.broadcastMessage(Koth.PREFIX + ChatColor.RED + "Zones saved.");
-		Bukkit.broadcastMessage(Koth.PREFIX + ChatColor.RED + "Unloaded.");
+		Bukkit.getConsoleSender().sendMessage(Koth.PREFIX + ChatColor.RED + "Zones saved.");
+		Bukkit.getConsoleSender().sendMessage(Koth.PREFIX + ChatColor.RED + "Unloaded.");
 	}
 }
