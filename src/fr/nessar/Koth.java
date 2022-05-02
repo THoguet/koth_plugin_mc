@@ -20,7 +20,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import me.clip.placeholderapi.PlaceholderAPI;
-import net.md_5.bungee.api.ChatColor;
+import org.bukkit.ChatColor;
 
 public class Koth extends JavaPlugin implements Listener {
 
