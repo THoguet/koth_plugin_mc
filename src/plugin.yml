@@ -9,11 +9,49 @@ softdepend:
   - PlaceholderAPI
 commands:
   koth:
+    aliases: [k]
     description: koth base command
     permission: koth
     usage: "Usage: /<command> [new | delete | list | start | stop | setchest | save | reloadconfig] <name> <time>"
 
 permissions:
-  koth.base:
-    description: allow base koth command
+  koth.*:
+    description: "Allows you to do all koth's commands"
+    default: op
+    children:
+      - "koth"
+      - "koth.new"
+      - "koth.delete"
+      - "koth.list"
+      - "koth.start"
+      - "koth.stop"
+      - "koth.setchest"
+      - "koth.save"
+      - "koth.reloaditem"
+  koth:
+    description: allow listing command
+    default: op
+  koth.new:
+    description: "Allows you to make new koth zone"
+    default: op
+  koth.delete:
+    description: "Allows you to remove any koth zone"
+    default: op
+  koth.list:
+    description: "Allows you to list all koth created on the server"
+    default: not op
+  koth.start:
+    description: "Allows you to start any created koth (if there isn't any already started)"
+    default: op
+  koth.stop:
+    description: "Allows you to stop the current active koth"
+    default: op
+  koth.setchest:
+    description: "Allows you to set the coordinate of the reward chest"
+    default: op
+  koth.save:
+    description: "Allows you to set your inventory as reward on the config file"
+    default: op
+  koth.reloaditem:
+    description: "Allows you to reload the item list of the reward chest"
     default: op
