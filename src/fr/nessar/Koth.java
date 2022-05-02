@@ -27,7 +27,7 @@ public class Koth extends JavaPlugin implements Listener {
 	private static final String PREFIX = ChatColor.GRAY + "[" + ChatColor.GOLD + "KOTH" + ChatColor.GRAY + "] "
 			+ ChatColor.RESET;
 
-	private dataManager dManager;
+	private DataManager dManager;
 
 	private boolean useScoreBoard = true;
 
@@ -64,7 +64,7 @@ public class Koth extends JavaPlugin implements Listener {
 		this.originalTimer = 0;
 		this.isActiveZoneEmpty = true;
 		this.cScoreboard = null;
-		this.dManager = new dataManager();
+		this.dManager = new DataManager();
 		this.cZones = this.dManager.loadZones();
 		if (this.cZones == null) {
 			Bukkit.getServer().getConsoleSender()
@@ -185,7 +185,7 @@ public class Koth extends JavaPlugin implements Listener {
 		return this.cZones;
 	}
 
-	public dataManager getdManager() {
+	public DataManager getdManager() {
 		return this.dManager;
 	}
 

@@ -15,13 +15,13 @@ import com.google.gson.Gson;
 import org.bukkit.Bukkit;
 import net.md_5.bungee.api.ChatColor;
 
-public class dataManager {
+public class DataManager {
 	private Koth plugin = Koth.getPlugin(Koth.class);
 
 	// Files & File Configs Here
 	public File zoneFile;
 
-	public dataManager() {
+	public DataManager() {
 		if (!plugin.getDataFolder().exists()) {
 			plugin.getDataFolder().mkdir();
 		}
